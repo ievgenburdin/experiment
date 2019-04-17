@@ -1,11 +1,15 @@
 import os
 import asyncio
 import time
+import multiprocessing
 from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
+
 
 async def hold(sec):
     print(f'Running for {sec} seconds')
     print(f'Running in process ID: {os.getpid()}')
+    print(multiprocessing.current_process().name)
     await asyncio.sleep(sec)
     return sec
 
@@ -26,6 +30,7 @@ def async_runer(coro_fn, *args):
 async def main(loop):
     print('entering main')
     executor = ProcessPoolExecutor(max_workers=3)
+    # executor = ThreadPoolExecutor(max_workers=3)
     data = await asyncio.gather(*(loop.run_in_executor(executor, async_runer, hold, sec)
                                   for sec in range(10)))
     print('got result', data)
